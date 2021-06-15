@@ -5,16 +5,9 @@
 </template>
 
 <script>
-// import Register from './views/Register'
-// import Login from './views/Login'
-// import Projects from './views/Projects'
 export default {
   name: 'app',
-  components: {
-    //    Register,
-    // Login
-    // Projects
-  }
+  components: {}
 }
 </script>
 

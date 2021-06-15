@@ -46,7 +46,7 @@ import TopNav from '../components/TopNav'
 import Footer from '../components/Footer'
 
 export default {
-  name: 'create_project',
+  name: 'profile',
   data() {
     return {
       profile: null

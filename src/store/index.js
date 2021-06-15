@@ -94,6 +94,34 @@ export default new Vuex.Store({
           })
       })
     },
+    CREATE_TASK: (
+      { commit, state },
+      { title, deadline, performer, project }
+    ) => {
+      return new Promise((resolve, reject) => {
+        getAPI
+          .post(
+            '/api/v1/projects/task',
+            {
+              title,
+              deadline,
+              performer,
+              project
+            },
+            {
+              headers: { Authorization: `JWT ${state.accessToken}` }
+            }
+          )
+          .then(({ data, status }) => {
+            if (status === 201) {
+              resolve(true)
+            }
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
     UPDATE_PROFILE: ({ commit, state }, data) => {
       return new Promise((resolve, reject) => {
         getAPI

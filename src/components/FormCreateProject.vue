@@ -84,7 +84,9 @@ export default {
       this.$store
         .dispatch('CREATE_PROJECT', {
           title: this.title,
-          description: this.description
+          description: this.description,
+          category: this.category,
+          performers: this.performers
         })
         .then((succes) => {})
         .catch((e) => {

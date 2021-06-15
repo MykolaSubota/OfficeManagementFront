@@ -11,7 +11,7 @@
             >
               <h3 class="text-dark mb-0">Проекти</h3>
               <b-button v-b-modal.created_project variant="primary"
-                >Додати проект</b-button
+                ><i class="fas fa-plus"></i> Додати проект</b-button
               >
               <b-modal
                 id="created_project"
@@ -31,9 +31,15 @@
                 :fields="fields"
               >
                 <template #cell(title)="data">
-                  <router-link to="/">
+                  <router-link
+                    style="color: black"
+                    :to="{ name: 'project', params: { id: data.item.id } }"
+                  >
                     {{ data.item.title }}
                   </router-link>
+                </template>
+                <template #cell(created_date)="data">
+                  <p>{{ date(data) }}</p>
                 </template>
                 <template #cell(category)="data">
                   <p v-if="data.item.category === 'Teaching'">Навчання</p>
@@ -126,6 +132,16 @@ export default {
       .catch((err) => {
         console.log(err)
       })
+  },
+  methods: {
+    date(data) {
+      var date = new Date(data.value)
+      return date.toLocaleString('ua', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    }
   }
 }
 </script>

@@ -7,6 +7,7 @@ import Logout from '../views/Logout'
 import Workers from '../views/Workers'
 import Profile from '../views/Profile'
 import Settings from '../views/Settings'
+import Project from '../views/Project'
 
 Vue.use(VueRouter)
 
@@ -46,6 +47,14 @@ const routes = [
     path: '/profile/:id',
     component: Profile,
     name: 'profile',
+    meta: {
+      requiresLogin: true
+    }
+  },
+  {
+    path: '/project/:id',
+    component: Project,
+    name: 'project',
     meta: {
       requiresLogin: true
     }

@@ -36,6 +36,7 @@
                 /></template>
                 <template #cell(PIB)="data">
                   <router-link
+                    style="color: black"
                     :to="{ name: 'profile', params: { id: data.item.id } }"
                   >
                     {{ data.item.last_name }} {{ data.item.first_name }}
