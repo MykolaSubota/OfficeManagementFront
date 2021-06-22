@@ -9,57 +9,40 @@
             <div
               class="d-sm-flex justify-content-between align-items-center mb-4"
             >
-              <h3 class="text-dark mb-0">{{ ефіл.title }}</h3>
+              <h3 class="text-dark mb-0">{{ task.title }}</h3>
             </div>
-            <div>
-              <p v-if="project.category === 'Teaching'">
-                <strong>Категорія:</strong> Навчання
-              </p>
-              <p v-if="project.category === 'Science'">
-                <strong>Категорія:</strong> Наука
-              </p>
-              <p v-if="project.category === 'Business'">
-                <strong>Категорія:</strong> Бізнес
-              </p>
-              <div>
-                <p>
-                  <strong>Дата створення:</strong>
-                  {{ date(project.created_date) }}
-                </p>
-              </div>
-              <div v-for="worker in $store.state.usersAPI" :key="worker.id">
-                <p v-if="worker.username === project.author">
-                  <strong>Керівник проекту:</strong>
-                  {{ worker.last_name }} {{ worker.first_name }}
-                  {{ worker.middle_name }}
-                </p>
-              </div>
-              <strong>Виконавці: </strong>
-              <div
-                id="line"
-                v-for="performer in project.performers"
-                :key="performer.id"
-              >
-                <div
-                  id="line"
-                  v-for="worker in $store.state.usersAPI"
-                  :key="worker.id"
-                >
-                  <div id="line" v-if="performer === worker.id">
-                    {{ worker.last_name }} {{ worker.first_name }}
-                    {{ worker.middle_name }};
-                  </div>
-                </div>
-              </div>
-              <div style="margin-top: 20px; margin-bottom: 10px">
-                {{ project.description }}
-              </div>
-            </div>
+            <p>
+              <strong>Належність до проекту:</strong>
+              {{ task.project.title }}
+            </p>
+            <p>
+              <strong>Автор:</strong>
+              {{ task.author.last_name }} {{ task.author.first_name }}
+              {{ task.author.middle_name }}
+            </p>
+            <p>
+              <strong>Виконавець:</strong>
+              {{ task.author.last_name }} {{ task.author.first_name }}
+              {{ task.author.middle_name }}
+            </p>
+            <p>
+              <strong>Дата створення:</strong>
+              {{ date(task.created_date) }}
+            </p>
+            <p>
+              <strong>Дедлайн:</strong>
+              {{ date_and_time(task.deadline) }}
+            </p>
+            <h4>00:00:00</h4>
             <div
               style="text-align: right; margin-bottom: 10px; margin-right: 20px"
             >
-              <b-button v-b-modal.created_task variant="primary"
-                ><i class="fas fa-plus"></i> Додати завдання</b-button
+              <b-button variant="primary" @click="createTimeFixation()"
+                ><template v-if="$store.state.stopwatch === '00:00:00'"
+                  ><i class="fas fa-play"></i> Старт</template
+                ><template v-else
+                  ><i class="far fa-stop-circle"></i> Стоп</template
+                ></b-button
               >
             </div>
             <div class="table-responsive">
@@ -71,27 +54,8 @@
                 :items="items"
                 :fields="fields"
               >
-                <template #cell(author)="data">
-                  <template v-for="worker in $store.state.usersAPI">
-                    <template v-if="data.item.author === worker.id">
-                      {{ worker.last_name }} {{ worker.first_name }}
-                      {{ worker.middle_name }}
-                    </template>
-                  </template>
-                </template>
-                <template #cell(performer)="data">
-                  <template v-for="worker in $store.state.usersAPI">
-                    <template v-if="data.item.performer === worker.id">
-                      {{ worker.last_name }} {{ worker.first_name }}
-                      {{ worker.middle_name }}
-                    </template>
-                  </template>
-                </template>
-                <template #cell(created_date)="data">{{
-                  date(data.item.created_date)
-                }}</template>
-                <template #cell(deadline)="data">
-                  {{ date_and_time(data.item.deadline) }}
+                <template #cell(date)="data">
+                  {{ date(data.item.date) }}
                 </template>
               </b-table>
             </div>
@@ -123,41 +87,19 @@ export default {
       task: null,
       fields: [
         {
-          key: 'title',
-          label: 'Назва завдання',
+          key: 'date',
+          label: 'Дата',
           sortable: true
         },
         {
-          key: 'author',
-          label: 'Автор',
-          sortable: true
-        },
-        {
-          key: 'created_date',
-          label: 'Дата створення',
-          sortable: true
-        },
-        {
-          key: 'performer',
-          label: 'Виконавець',
-          sortable: true
-        },
-        {
-          key: 'created_date',
-          label: 'Дата створення',
-          sortable: true
-        },
-        {
-          key: 'deadline',
-          label: 'Дедлайн',
+          key: 'duration',
+          label: 'Витрачено часу',
           sortable: true
         }
       ],
       items: [],
       options: [],
-      title: '',
-      deadline: '',
-      performer: ''
+      duration: '05:45:15'
     }
   },
   components: {
@@ -173,33 +115,12 @@ export default {
   computed: mapState(['currentUserAPI', 'usersAPI']),
   created() {
     getAPI
-      .get(`/api/v1/projects/project/${this.$route.params.id}`, {
+      .get(`/api/v1/projects/task/${this.$route.params.id}`, {
         headers: { Authorization: `JWT ${this.$store.state.accessToken}` }
       })
       .then((response) => {
-        this.project = response.data
-        this.items = this.project.tasks
-        console.log(response.data)
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-    getAPI
-      .get('/api/v1/profiles/', {
-        headers: { Authorization: `JWT ${this.$store.state.accessToken}` }
-      })
-      .then((response) => {
-        this.$store.state.usersAPI = response.data
-        this.$store.state.usersAPI.forEach((worker) => {
-          // if (this.project.performers.includes(worker.id))
-          this.options.push({
-            text: worker.last_name + ' ' + worker.first_name,
-            value: worker.id
-          })
-        })
-      })
-      .catch((err) => {
-        console.log(err)
+        this.task = response.data
+        this.items = this.task.timer_fixations
       })
   },
   methods: {
@@ -222,15 +143,13 @@ export default {
         day: 'numeric'
       })
     },
-    createTask() {
+    createTimeFixation() {
       console.log(this.date)
       console.log(this.time)
       this.$store
-        .dispatch('CREATE_TASK', {
-          title: this.title,
-          deadline: this.date + 'T' + this.time,
-          performer: this.performer,
-          project: this.$route.params.id
+        .dispatch('CREATE_TIME_FIXATION', {
+          task: this.task.id,
+          duration: this.duration
         })
         .then((succes) => {})
         .catch((e) => {

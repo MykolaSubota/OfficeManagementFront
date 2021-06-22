@@ -21,7 +21,7 @@ Vue.use(IconsPlugin)
 Vue.use(Vuelidate)
 Vue.use(IdleVue, {
   eventEmitter: eventsHub,
-  idleTime: 60000 * 60
+  idleTime: 60000 * 120
 })
 
 library.add(faUserSecret)

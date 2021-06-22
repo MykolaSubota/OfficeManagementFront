@@ -222,10 +222,14 @@ export default {
       data.append('email', this.email)
       data.append('phone', this.phone)
       if (this.avatar) data.append('avatar', this.avatar)
-      console.log(this.middle_name)
       this.$store
         .dispatch('UPDATE_PROFILE', data)
-        .then((succes) => {})
+        .then((succes) => {
+          this.$router.push({
+            nsme: 'profile',
+            params: { id: this.$store.state.currentUserAPI.id }
+          })
+        })
         .catch((e) => {
           if (e.response.status === 400) {
             this.makeError(e.response.data.username[0])

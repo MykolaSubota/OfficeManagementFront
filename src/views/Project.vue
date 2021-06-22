@@ -64,28 +64,20 @@
                   {{ date(project.created_date) }}
                 </p>
               </div>
-              <div v-for="worker in $store.state.usersAPI" :key="worker.id">
-                <p v-if="worker.username === project.author">
-                  <strong>Керівник проекту:</strong>
-                  {{ worker.last_name }} {{ worker.first_name }}
-                  {{ worker.middle_name }}
-                </p>
+              <div>
+                <strong>Керівник проекту:</strong>
+                {{ project.author.last_name }} {{ project.author.first_name }}
+                {{ project.author.middle_name }}
               </div>
-              <strong>Виконавці: </strong>
-              <div
-                id="line"
-                v-for="performer in project.performers"
-                :key="performer.id"
-              >
+              <div style="margin-top: 16px">
+                <strong>Виконавці: </strong>
                 <div
                   id="line"
-                  v-for="worker in $store.state.usersAPI"
-                  :key="worker.id"
+                  v-for="performer in project.performers"
+                  :key="performer.id"
                 >
-                  <div id="line" v-if="performer === worker.id">
-                    {{ worker.last_name }} {{ worker.first_name }}
-                    {{ worker.middle_name }};
-                  </div>
+                  {{ performer.last_name }} {{ performer.first_name }}
+                  {{ performer.middle_name }};
                 </div>
               </div>
               <div style="margin-top: 20px; margin-bottom: 10px">
@@ -108,6 +100,14 @@
                 :items="items"
                 :fields="fields"
               >
+                <template #cell(title)="data">
+                  <router-link
+                    style="color: black"
+                    :to="{ name: 'task', params: { id: data.item.id } }"
+                  >
+                    {{ data.item.title }}
+                  </router-link>
+                </template>
                 <template #cell(author)="data">
                   <template v-for="worker in $store.state.usersAPI">
                     <template v-if="data.item.author === worker.id">
@@ -214,7 +214,6 @@ export default {
         headers: { Authorization: `JWT ${this.$store.state.accessToken}` }
       })
       .then((response) => {
-        console.log('1')
         this.project = response.data
         this.items = this.project.tasks
         console.log(response.data)
@@ -227,20 +226,17 @@ export default {
         headers: { Authorization: `JWT ${this.$store.state.accessToken}` }
       })
       .then((response) => {
-        console.log(response.data)
-        console.log('2')
         this.$store.state.usersAPI = response.data
-        this.$store.state.usersAPI.forEach((worker) => {
-          console.log(
-            'trollo 33: ' + this.project.performers.includes(worker.id)
-          )
-          if (this.project.performers.includes(worker.id)) {
-            console.log('trollo 4: ')
-            this.options.push({
-              text: worker.last_name + ' ' + worker.first_name,
-              value: worker.id
-            })
-          }
+        this.project.performers.forEach((performer) => {
+          this.options.push({
+            text:
+              performer.last_name +
+              ' ' +
+              performer.first_name +
+              ' ' +
+              performer.middle_name,
+            value: performer.id
+          })
         })
       })
       .catch((err) => {
@@ -275,7 +271,9 @@ export default {
           performer: this.performer,
           project: this.$route.params.id
         })
-        .then((succes) => {})
+        .then((succes) => {
+          this.$router.go()
+        })
         .catch((e) => {
           console.log(e)
         })

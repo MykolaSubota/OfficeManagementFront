@@ -8,7 +8,7 @@
           <div class="container-fluid"></div>
           <div style="text-align: center">
             <img
-              v-if="profile.avatar"
+              v-if="profile.avatar != null"
               class="border rounded-circle img-profile center"
               :src="profile.avatar"
               width="300"
@@ -64,14 +64,12 @@ export default {
   },
   computed: mapState(['currentUserAPI']),
   created() {
-    console.log(this.$route)
     getAPI
       .get(`/api/v1/profile/${this.$route.params.id}/`, {
         headers: { Authorization: `JWT ${this.$store.state.accessToken}` }
       })
       .then((response) => {
         this.profile = response.data
-        console.log(response.data)
       })
       .catch((err) => {
         console.log(err)

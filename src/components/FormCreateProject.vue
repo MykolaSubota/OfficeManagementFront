@@ -88,7 +88,9 @@ export default {
           category: this.category,
           performers: this.performers
         })
-        .then((succes) => {})
+        .then((succes) => {
+          this.$router.go()
+        })
         .catch((e) => {
           console.log(e)
         })

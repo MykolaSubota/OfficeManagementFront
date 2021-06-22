@@ -8,6 +8,7 @@ import Workers from '../views/Workers'
 import Profile from '../views/Profile'
 import Settings from '../views/Settings'
 import Project from '../views/Project'
+import Task from '../views/Task'
 
 Vue.use(VueRouter)
 
@@ -63,6 +64,14 @@ const routes = [
     path: '/settings',
     component: Settings,
     name: 'settings',
+    meta: {
+      requiresLogin: true
+    }
+  },
+  {
+    path: '/task/:id',
+    component: Task,
+    name: 'task',
     meta: {
       requiresLogin: true
     }

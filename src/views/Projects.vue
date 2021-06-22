@@ -27,7 +27,7 @@
                 class="table"
                 striped
                 hover
-                :items="items"
+                :items="$store.state.myProjects"
                 :fields="fields"
               >
                 <template #cell(title)="data">
@@ -99,8 +99,7 @@ export default {
           label: 'Дата створення',
           sortable: true
         }
-      ],
-      items: []
+      ]
     }
   },
   components: {
@@ -117,7 +116,7 @@ export default {
   computed: {
     ...mapState(['projectsAPI']),
     rows() {
-      return this.items.length
+      return this.$store.state.myProjects.length
     }
   },
   created() {
@@ -127,7 +126,23 @@ export default {
       })
       .then((response) => {
         this.$store.state.projectsAPI = response.data
-        this.items = this.$store.state.projectsAPI
+        this.$store.state.myProjects = []
+        localStorage.myProjects = null
+        this.$store.state.projectsAPI.forEach((project) => {
+          if (project.author.id === this.$store.state.currentUserAPI.id)
+            this.$store.state.myProjects.push(project)
+          else {
+            project.performers.forEach((performer) => {
+              if (performer.id === this.$store.state.currentUserAPI.id) {
+                this.$store.state.myProjects.push(project)
+              }
+            })
+          }
+        })
+        localStorage.setItem(
+          'myProjects',
+          JSON.stringify(this.$store.state.myProjects)
+        )
       })
       .catch((err) => {
         console.log(err)
