@@ -116,7 +116,10 @@ export default {
   computed: {
     ...mapState(['projectsAPI']),
     rows() {
-      return this.$store.state.myProjects.length
+      console.log(this.$store.state.myProjects)
+      if (this.$store.state.myProjects)
+        return this.$store.state.myProjects.length
+      else return 0
     }
   },
   created() {
@@ -125,15 +128,20 @@ export default {
         headers: { Authorization: `JWT ${this.$store.state.accessToken}` }
       })
       .then((response) => {
+        console.log('sdasda')
         this.$store.state.projectsAPI = response.data
         this.$store.state.myProjects = []
         localStorage.myProjects = null
         this.$store.state.projectsAPI.forEach((project) => {
-          if (project.author.id === this.$store.state.currentUserAPI.id)
+          console.log(99)
+          if (project.author === this.$store.state.currentUserAPI.id) {
             this.$store.state.myProjects.push(project)
-          else {
+            console.log(100)
+          } else {
+            console.log('aaaaaa')
             project.performers.forEach((performer) => {
-              if (performer.id === this.$store.state.currentUserAPI.id) {
+              if (performer === this.$store.state.currentUserAPI.id) {
+                console.log('55555')
                 this.$store.state.myProjects.push(project)
               }
             })

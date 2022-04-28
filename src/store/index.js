@@ -146,6 +146,33 @@ export default new Vuex.Store({
           .then(({ data, status }) => {
             if (status === 201) {
               resolve(true)
+              this.$router.go()
+            }
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+    UPDATE_TIME_FIXATION: (
+      { commit, state },
+      { task, duration, timer_fixation_id }
+    ) => {
+      return new Promise((resolve, reject) => {
+        getAPI
+          .put(
+            'api/v1/projects/time_fixation/' + timer_fixation_id,
+            {
+              task,
+              duration
+            },
+            {
+              headers: { Authorization: `JWT ${state.accessToken}` }
+            }
+          )
+          .then(({ data, status }) => {
+            if (status === 201) {
+              resolve(true)
             }
           })
           .catch((error) => {
@@ -161,7 +188,6 @@ export default new Vuex.Store({
           })
           .then(({ data, status }) => {
             if (status === 201) {
-              resolve(true)
             }
           })
           .catch((error) => {

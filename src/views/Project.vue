@@ -109,20 +109,14 @@
                   </router-link>
                 </template>
                 <template #cell(author)="data">
-                  <template v-for="worker in $store.state.usersAPI">
-                    <template v-if="data.item.author === worker.id">
-                      {{ worker.last_name }} {{ worker.first_name }}
-                      {{ worker.middle_name }}
-                    </template>
-                  </template>
+                  {{ data.item.author.last_name }}
+                  {{ data.item.author.first_name }}
+                  {{ data.item.author.middle_name }}
                 </template>
                 <template #cell(performer)="data">
-                  <template v-for="worker in $store.state.usersAPI">
-                    <template v-if="data.item.performer === worker.id">
-                      {{ worker.last_name }} {{ worker.first_name }}
-                      {{ worker.middle_name }}
-                    </template>
-                  </template>
+                  {{ data.item.author.last_name }}
+                  {{ data.item.author.first_name }}
+                  {{ data.item.author.middle_name }}
                 </template>
                 <template #cell(created_date)="data">{{
                   date(data.item.created_date)

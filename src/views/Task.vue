@@ -33,16 +33,28 @@
               <strong>Дедлайн:</strong>
               {{ date_and_time(task.deadline) }}
             </p>
-            <h4>00:00:00</h4>
             <div
               style="text-align: right; margin-bottom: 10px; margin-right: 20px"
             >
-              <b-button variant="primary" @click="createTimeFixation()"
-                ><template v-if="$store.state.stopwatch === '00:00:00'"
-                  ><i class="fas fa-play"></i> Старт</template
-                ><template v-else
-                  ><i class="far fa-stop-circle"></i> Стоп</template
-                ></b-button
+              <b-button
+                variant="primary"
+                v-if="
+                  task.timer_fixations[task.timer_fixations.length - 1] &&
+                  task.timer_fixations[task.timer_fixations.length - 1]
+                    .duration !== '00:00:00'
+                "
+                @click="createTimeFixation()"
+                ><i class="fas fa-play"></i> Старт</b-button
+              ><b-button
+                variant="primary"
+                v-else-if="
+                  !task.timer_fixations[task.timer_fixations.length - 1]
+                "
+                @click="createTimeFixation()"
+                ><i class="fas fa-play"></i> Старт</b-button
+              >
+              <b-button variant="primary" v-else @click="updateTimeFixation()"
+                ><i class="far fa-stop-circle"></i> Стоп</b-button
               >
             </div>
             <div class="table-responsive">
@@ -56,6 +68,9 @@
               >
                 <template #cell(date)="data">
                   {{ date(data.item.date) }}
+                </template>
+                <template #cell(duration)="data">
+                  {{ time_duration(data.item.start, data.item.stop) }}
                 </template>
               </b-table>
             </div>
@@ -92,6 +107,16 @@ export default {
           sortable: true
         },
         {
+          key: 'start',
+          label: 'Початок',
+          sortable: false
+        },
+        {
+          key: 'stop',
+          label: 'Кінець',
+          sortable: false
+        },
+        {
           key: 'duration',
           label: 'Витрачено часу',
           sortable: true
@@ -99,7 +124,8 @@ export default {
       ],
       items: [],
       options: [],
-      duration: '05:45:15'
+      duration: '00:00:00',
+      timer_fixation_id: null
     }
   },
   components: {
@@ -143,15 +169,61 @@ export default {
         day: 'numeric'
       })
     },
+    time_duration(start, stop) {
+      var st = new Date(
+        2020,
+        1,
+        1,
+        Number(start.split(':')[0]),
+        Number(start.split(':')[1]),
+        Number(start.split(':')[2].split('.')[0]),
+        Number(start.split(':')[2].split('.')[1])
+      )
+      var sp = new Date(
+        2020,
+        1,
+        1,
+        Number(stop.split(':')[0]),
+        Number(stop.split(':')[1]),
+        Number(stop.split(':')[2].split('.')[0]),
+        Number(stop.split(':')[2].split('.')[1])
+      )
+      var milliseconds = parseInt(((sp - st) % 1000) / 100)
+      var seconds = parseInt(((sp - st) / 1000) % 60)
+      var minutes = parseInt(((sp - st) / (1000 * 60)) % 60)
+      var hours = parseInt(((sp - st) / (1000 * 60 * 60)) % 24)
+
+      hours = hours < 10 ? '0' + hours : hours
+      minutes = minutes < 10 ? '0' + minutes : minutes
+      seconds = seconds < 10 ? '0' + seconds : seconds
+
+      return hours + ':' + minutes + ':' + seconds + '.' + milliseconds
+    },
     createTimeFixation() {
-      console.log(this.date)
-      console.log(this.time)
       this.$store
         .dispatch('CREATE_TIME_FIXATION', {
           task: this.task.id,
           duration: this.duration
         })
-        .then((succes) => {})
+        .then((succes) => {
+          this.$router.go()
+        })
+        .catch((e) => {
+          console.log(e)
+        })
+    },
+    updateTimeFixation() {
+      this.$store
+        .dispatch('UPDATE_TIME_FIXATION', {
+          task: this.task.id,
+          duration: '01:00:00',
+          timer_fixation_id: this.task.timer_fixations[
+            this.task.timer_fixations.length - 1
+          ].id
+        })
+        .then((succes) => {
+          this.$router.go()
+        })
         .catch((e) => {
           console.log(e)
         })
